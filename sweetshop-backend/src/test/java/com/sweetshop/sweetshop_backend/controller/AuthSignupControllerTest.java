@@ -79,5 +79,33 @@ public class AuthSignupControllerTest {
                 .andExpect(content().string("Username cannot be empty"));
     }
 
-    
+     @Test
+    @WithMockUser
+    void testUserSignupFailure_ShortPassword() throws Exception {
+        User userWithShortPassword = new User("testuser", "123");
+        when(authService.registerUser("testuser", "123"))
+                .thenReturn("Password must be at least 6 characters long");
+
+        mockMvc.perform(post("/api/auth/signup")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(userWithShortPassword)))
+                .andExpect(status().isConflict())
+                .andExpect(content().string("Password must be at least 6 characters long"));
+    }
+
+    @Test
+    @WithMockUser
+    void testUserSignupFailure_RegistrationException() throws Exception {
+        User user = new User("testuser", "password123");
+        when(authService.registerUser("testuser", "password123"))
+                .thenThrow(new RuntimeException("Database error"));
+
+        mockMvc.perform(post("/api/auth/signup")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(user)))
+                .andExpect(status().isInternalServerError())
+                .andExpect(content().string("Registration failed"));
+    }
 }
