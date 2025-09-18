@@ -47,4 +47,21 @@ public class AuthSignupControllerTest {
                 .andExpect(content().string("User registered successfully"));
     }
 
+    
+    @Test
+    @WithMockUser
+    void testUserSignupFailure_UserAlreadyExists() throws Exception {
+        User existingUser = new User("existinguser", "password123");
+        when(authService.registerUser("existinguser", "password123"))
+                .thenReturn("Username already exists");
+
+        mockMvc.perform(post("/api/auth/signup")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(existingUser)))
+                .andExpect(status().isConflict())
+                .andExpect(content().string("Username already exists"));
+    }
+
+    
 }
