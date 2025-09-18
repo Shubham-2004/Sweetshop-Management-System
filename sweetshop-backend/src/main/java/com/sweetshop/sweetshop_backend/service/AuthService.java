@@ -32,6 +32,34 @@ public class AuthService {
             }
         }
         
-        return null; // Return null for invalid credentials to match test expectations
+        return null; // Return null for invalid credentials
+    }
+
+    public String registerUser(String username, String password) {
+        // Check if user already exists
+        if (userRepository.existsByUsername(username)) {
+            return "Username already exists";
+        }
+        
+        // Validate input
+        if (username == null || username.trim().isEmpty()) {
+            return "Username cannot be empty";
+        }
+        
+        if (password == null || password.length() < 6) {
+            return "Password must be at least 6 characters long";
+        }
+        
+        // Create new user
+        User newUser = new User();
+        newUser.setUsername(username.trim());
+        newUser.setPassword(passwordEncoder.encode(password));
+        
+        try {
+            userRepository.save(newUser);
+            return "User registered successfully";
+        } catch (Exception e) {
+            return "Registration failed";
+        }
     }
 }

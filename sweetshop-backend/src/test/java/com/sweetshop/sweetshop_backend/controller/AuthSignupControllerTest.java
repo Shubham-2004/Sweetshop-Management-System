@@ -21,7 +21,8 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 @WebMvcTest(controllers = AuthController.class)
 @AutoConfigureWebMvc
-public class AuthControllerTest {
+public class AuthSignupControllerTest {
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -33,29 +34,17 @@ public class AuthControllerTest {
 
     @Test
     @WithMockUser
-    void testUserLoginFailure() throws Exception {
-        User user = new User("testuser", "wrong-password");
-        when(authService.loginUser("testuser", "wrong-password")).thenReturn(null);
+    void testUserSignupSuccess() throws Exception {
+        User newUser = new User("newuser", "password123");
+        when(authService.registerUser("newuser", "password123"))
+                .thenReturn("User registered successfully");
 
-        mockMvc.perform(post("/api/auth/login")
+        mockMvc.perform(post("/api/auth/signup")
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(user)))
-                .andExpect(status().isUnauthorized());
+                .content(objectMapper.writeValueAsString(newUser)))
+                .andExpect(status().isCreated())
+                .andExpect(content().string("User registered successfully"));
     }
 
-    @Test
-    @WithMockUser
-    void testUserLoginSuccess() throws Exception {
-        User user = new User("testuser", "correct-password");
-        String expectedToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.test.token";
-        when(authService.loginUser("testuser", "correct-password")).thenReturn(expectedToken);
-
-        mockMvc.perform(post("/api/auth/login")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(user)))
-                .andExpect(status().isOk())
-                .andExpect(content().string(expectedToken));
-    }
 }
