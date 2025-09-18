@@ -19,10 +19,15 @@ public class AuthController {
     }
     @PostMapping("/login")
     public ResponseEntity<String> loginUser(@RequestBody User user) {
-        String token = authService.loginUser(user.getUsername(), user.getPassword());
-        if (token != null) {
-            return ResponseEntity.ok(token);
+        try {
+            String token = authService.loginUser(user.getUsername(), user.getPassword());
+            if (token != null) {
+                return ResponseEntity.ok(token);
+            } else {
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
-        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 }

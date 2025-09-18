@@ -32,6 +32,6 @@ public class AuthService {
             }
         }
         
-        throw new RuntimeException("Invalid username or password");
+        return null; // Return null for invalid credentials to match test expectations
     }
 }
