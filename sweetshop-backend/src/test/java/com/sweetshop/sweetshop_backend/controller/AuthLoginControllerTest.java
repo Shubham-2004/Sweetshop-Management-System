@@ -21,7 +21,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 @WebMvcTest(controllers = AuthController.class)
 @AutoConfigureWebMvc
-public class AuthControllerTest {
+public class AuthLoginControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
