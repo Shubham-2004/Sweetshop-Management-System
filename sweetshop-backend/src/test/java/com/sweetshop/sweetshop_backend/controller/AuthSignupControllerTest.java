@@ -63,5 +63,21 @@ public class AuthSignupControllerTest {
                 .andExpect(content().string("Username already exists"));
     }
 
+
+    @Test
+    @WithMockUser
+    void testUserSignupFailure_EmptyUsername() throws Exception {
+        User userWithEmptyUsername = new User("", "password123");
+        when(authService.registerUser("", "password123"))
+                .thenReturn("Username cannot be empty");
+
+        mockMvc.perform(post("/api/auth/signup")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(userWithEmptyUsername)))
+                .andExpect(status().isConflict())
+                .andExpect(content().string("Username cannot be empty"));
+    }
+
     
 }
