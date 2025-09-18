@@ -22,25 +22,47 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody User user) {
-        String token = authService.loginUser(user.getUsername(), user.getPassword());
-        if (token != null) {
-            return ResponseEntity.ok(token);
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+        try {
+            System.out.println("Login attempt for user: " + user.getUsername());
+            
+            if (user.getUsername() == null || user.getPassword() == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Username and password are required");
+            }
+            
+            String token = authService.loginUser(user.getUsername(), user.getPassword());
+            
+            if (token != null) {
+                return ResponseEntity.ok(token);
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+            }
+        } catch (Exception e) {
+            System.err.println("Error in login controller: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Login failed due to server error");
         }
     }
 
     @PostMapping("/signup")
     public ResponseEntity<String> signup(@RequestBody User user) {
         try {
+            System.out.println("Signup attempt for user: " + user.getUsername());
+            
+            if (user.getUsername() == null || user.getPassword() == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Username and password are required");
+            }
+            
             String result = authService.registerUser(user.getUsername(), user.getPassword());
+            
             if (result.equals("User registered successfully")) {
                 return ResponseEntity.status(HttpStatus.CREATED).body(result);
             } else {
                 return ResponseEntity.status(HttpStatus.CONFLICT).body(result);
             }
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Registration failed");
+            System.err.println("Error in signup controller: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Registration failed due to server error");
         }
     }
 }

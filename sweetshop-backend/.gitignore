@@ -30,5 +30,5 @@ build/
 !**/src/test/**/build/
 /src/main/resources/META-INF/spring-configuration-metadata.json
 /src/main/resources/application.properties
-### VS Code ###
 .vscode/
+sweetshop-backend/src/main/resources/application.properties
