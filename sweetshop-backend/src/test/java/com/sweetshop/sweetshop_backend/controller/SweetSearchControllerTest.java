@@ -78,4 +78,60 @@ public class SweetSearchControllerTest {
                 .andExpect(jsonPath("$[1].category").value("Indian Sweet"));
     }
 
+    
+    @Test
+    @WithMockUser
+    void testSearchSweetsByPriceRange() throws Exception {
+        // Arrange
+        Sweet affordable1 = new Sweet("Candy Bar", "Candy", 1.50, 200);
+        affordable1.setId("1");
+        
+        Sweet affordable2 = new Sweet("Lollipop", "Candy", 0.75, 300);
+        affordable2.setId("2");
+
+        List<Sweet> affordableSweets = Arrays.asList(affordable1, affordable2);
+
+        when(sweetService.searchSweetsByPriceRange(0.50, 2.00)).thenReturn(affordableSweets);
+
+        // Act & Assert
+        mockMvc.perform(get("/api/sweets/search")
+                .param("minPrice", "0.50")
+                .param("maxPrice", "2.00"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].price").value(1.50))
+                .andExpect(jsonPath("$[1].price").value(0.75));
+    }
+
+    @Test
+    @WithMockUser
+    void testSearchSweetsMultipleParams() throws Exception {
+        // Arrange
+        Sweet premiumChocolate = new Sweet("Premium Dark Chocolate", "Chocolate", 15.00, 25);
+        premiumChocolate.setId("1");
+
+        List<Sweet> premiumChocolates = Arrays.asList(premiumChocolate);
+
+        when(sweetService.searchSweets("chocolate", "Chocolate", 10.00, 20.00))
+                .thenReturn(premiumChocolates);
+
+        // Act & Assert
+        mockMvc.perform(get("/api/sweets/search")
+                .param("name", "chocolate")
+                .param("category", "Chocolate")
+                .param("minPrice", "10.00")
+                .param("maxPrice", "20.00"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].name").value("Premium Dark Chocolate"))
+                .andExpect(jsonPath("$[0].category").value("Chocolate"))
+                .andExpect(jsonPath("$[0].price").value(15.00));
+    }
+    
 }
