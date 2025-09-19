@@ -1,5 +1,7 @@
 package com.sweetshop.sweetshop_backend.controller;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +23,16 @@ public class SweetController {
         try {
             Sweet createdSweet = sweetService.createSweet(sweet);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdSweet);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Sweet>> getAllSweets() {
+        try {
+            List<Sweet> sweets = sweetService.getAllSweets();
+            return ResponseEntity.ok(sweets);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
