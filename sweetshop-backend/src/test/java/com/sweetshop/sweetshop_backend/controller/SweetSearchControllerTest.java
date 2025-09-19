@@ -32,7 +32,11 @@ public class SweetSearchControllerTest {
     @Test
     @WithMockUser
     void testSearchSweetsByName() throws Exception {
-
+        // Arrange
+        List<Sweet> chocolateSweets = Arrays.asList(
+            new Sweet("Dark Chocolate", "", 0, 0),
+            new Sweet("Milk Chocolate", "", 0, 0)
+        );
 
         when(sweetService.searchSweetsByName("chocolate")).thenReturn(chocolateSweets);
 
