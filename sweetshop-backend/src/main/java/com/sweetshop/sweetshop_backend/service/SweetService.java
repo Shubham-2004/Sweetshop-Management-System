@@ -22,4 +22,21 @@ public class SweetService {
     public List<Sweet> getAllSweets() {
         return sweetRepository.findAll();
     }
+
+    // New search methods
+    public List<Sweet> searchSweetsByName(String name) {
+        return sweetRepository.findByNameContainingIgnoreCase(name);
+    }
+
+    public List<Sweet> searchSweetsByCategory(String category) {
+        return sweetRepository.findByCategoryContainingIgnoreCase(category);
+    }
+
+    public List<Sweet> searchSweetsByPriceRange(double minPrice, double maxPrice) {
+        return sweetRepository.findByPriceBetween(minPrice, maxPrice);
+    }
+
+    public List<Sweet> searchSweets(String name, String category, Double minPrice, Double maxPrice) {
+        return sweetRepository.findByMultipleCriteria(name, category, minPrice, maxPrice);
+    }
 }
