@@ -46,7 +46,7 @@ public class SweetAddTestControllerTest {
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(newSweet)))
-                .andDo(print()) // This will show the response in console
+                .andDo(print()) 
                 .andExpect(status().isCreated());
     }
 
@@ -64,7 +64,36 @@ public class SweetAddTestControllerTest {
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(newSweet)))
-                .andDo(print()) // This will show the response in console
+                .andDo(print()) 
                 .andExpect(status().isCreated());
+    }
+
+    
+    @Test
+    @WithMockUser
+    void testCreateSweetWithServerError() throws Exception {
+        when(sweetService.createSweet(any(Sweet.class))).thenThrow(new RuntimeException("Database connection error"));
+
+        Sweet newSweet = new Sweet("Failed Sweet", "Test", 1.00, 10);
+
+        mockMvc.perform(post("/api/sweets")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(newSweet)))
+                .andDo(print())
+                .andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    @WithMockUser
+    void testCreateSweetWithInvalidJson() throws Exception {
+        String invalidJson = "{\"name\":\"Test Sweet\",\"price\":\"invalid\"}"; // Invalid price format
+
+        mockMvc.perform(post("/api/sweets")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(invalidJson))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
     }
 }
