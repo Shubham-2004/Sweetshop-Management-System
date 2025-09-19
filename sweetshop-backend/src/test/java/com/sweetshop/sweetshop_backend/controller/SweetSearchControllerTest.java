@@ -51,4 +51,31 @@ public class SweetSearchControllerTest {
                 .andExpect(jsonPath("$[0].name").value("Dark Chocolate"))
                 .andExpect(jsonPath("$[1].name").value("Milk Chocolate"));
     }
+
+   @Test
+    @WithMockUser
+    void testSearchSweetsByCategory() throws Exception {
+
+        Sweet gulab = new Sweet("Gulab Jamun", "Indian Sweet", 5.00, 50);
+        gulab.setId("1");
+        
+        Sweet rasgulla = new Sweet("Rasgulla", "Indian Sweet", 4.50, 60);
+        rasgulla.setId("2");
+
+        List<Sweet> indianSweets = Arrays.asList(gulab, rasgulla);
+
+        when(sweetService.searchSweetsByCategory("Indian Sweet")).thenReturn(indianSweets);
+
+
+        mockMvc.perform(get("/api/sweets/search")
+                .param("category", "Indian Sweet"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].category").value("Indian Sweet"))
+                .andExpect(jsonPath("$[1].category").value("Indian Sweet"));
+    }
+
 }
