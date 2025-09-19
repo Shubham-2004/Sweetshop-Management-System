@@ -12,7 +12,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import org.junit.jupiter.api.Test;
 import java.util.Arrays;
-import java.util.List;
 
 @WebMvcTest(SweetController.class)
 public class SweetListControllerTest {
