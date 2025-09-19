@@ -37,4 +37,39 @@ public class SweetController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+
+    @GetMapping("/search")
+    public ResponseEntity<List<Sweet>> searchSweets(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice) {
+        
+        try {
+            if (name == null && category == null && minPrice == null && maxPrice == null) {
+                return ResponseEntity.badRequest().build();
+            }
+
+            if (minPrice != null && maxPrice != null && minPrice > maxPrice) {
+                return ResponseEntity.badRequest().build();
+            }
+
+            List<Sweet> results;
+            if (name != null && category == null && minPrice == null && maxPrice == null) {
+                results = sweetService.searchSweetsByName(name);
+            } else if (name == null && category != null && minPrice == null && maxPrice == null) {
+                results = sweetService.searchSweetsByCategory(category);
+            } else if (name == null && category == null && minPrice != null && maxPrice != null) {
+                results = sweetService.searchSweetsByPriceRange(minPrice, maxPrice);
+            } else {
+                results = sweetService.searchSweets(name, category, minPrice, maxPrice);
+            }
+
+            return ResponseEntity.ok(results);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 }
