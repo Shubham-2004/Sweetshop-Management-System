@@ -49,4 +49,22 @@ public class SweetAddTestControllerTest {
                 .andDo(print()) // This will show the response in console
                 .andExpect(status().isCreated());
     }
+
+    @Test
+    @WithMockUser
+    void testCreateSweetSuccess2() throws Exception {
+        Sweet savedSweet = new Sweet("Rasgulla", "Dessert", 2.50, 100);
+        savedSweet.setId("124");
+
+        when(sweetService.createSweet(any(Sweet.class))).thenReturn(savedSweet);
+
+        Sweet newSweet = new Sweet("Rasgulla", "Dessert", 2.50, 100);
+
+        mockMvc.perform(post("/api/sweets")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(newSweet)))
+                .andDo(print()) // This will show the response in console
+                .andExpect(status().isCreated());
+    }
 }
