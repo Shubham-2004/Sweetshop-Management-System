@@ -16,7 +16,6 @@ public class SweetService {
         this.sweetRepository = sweetRepository;
     }
 
-    // Existing methods
     public Sweet createSweet(Sweet sweet) {
         return sweetRepository.save(sweet);
     }
@@ -63,6 +62,40 @@ public class SweetService {
             }
         } catch (Exception e) {
             System.err.println("Error deleting sweet with ID " + id + ": " + e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean purchaseSweet(String sweetId, int quantity) {
+        try {
+        
+            if (quantity <= 0) {
+                System.out.println("Invalid quantity: " + quantity);
+                return false;
+            }
+            
+            Optional<Sweet> sweetOptional = sweetRepository.findById(sweetId);
+            
+            if (sweetOptional.isEmpty()) {
+                System.out.println("Sweet not found with ID: " + sweetId);
+                return false;
+            }
+            
+            Sweet sweet = sweetOptional.get();
+           
+            if (sweet.getQuantity() < quantity) {
+                System.out.println("Insufficient stock. Available: " + sweet.getQuantity() + ", Requested: " + quantity);
+                return false;
+            }
+            
+            sweet.setQuantity(sweet.getQuantity() - quantity);
+            sweetRepository.save(sweet);
+            
+            return true;
+            
+        } catch (Exception e) {
+            System.err.println("Error during purchase: " + e.getMessage());
+            e.printStackTrace();
             return false;
         }
     }

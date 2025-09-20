@@ -1,6 +1,9 @@
 package com.sweetshop.sweetshop_backend.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -135,4 +138,42 @@ public class SweetController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
+
+
+@PostMapping("/{id}/purchase")
+public ResponseEntity<Map<String, Object>> purchaseSweet(
+        @PathVariable String id,
+        @RequestBody Map<String, Object> request) {
+    try {
+        Integer quantity = (Integer) request.get("quantity");
+        
+        if (quantity == null || quantity <= 0) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("message", "Quantity must be greater than 0");
+            errorResponse.put("success", false);
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
+        
+        boolean purchaseResult = sweetService.purchaseSweet(id, quantity);
+        
+        Map<String, Object> response = new HashMap<>();
+        if (purchaseResult) {
+            response.put("message", "Purchase successful");
+            response.put("success", true);
+            response.put("sweetId", id);
+            response.put("quantity", quantity);
+            return ResponseEntity.ok(response);
+        } else {
+            response.put("message", "Purchase failed - Sweet not found or insufficient stock");
+            response.put("success", false);
+            return ResponseEntity.badRequest().body(response);
+        }
+        
+    } catch (Exception e) {
+        Map<String, Object> errorResponse = new HashMap<>();
+        errorResponse.put("message", "Purchase failed");
+        errorResponse.put("success", false);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+    }
+}
 }
