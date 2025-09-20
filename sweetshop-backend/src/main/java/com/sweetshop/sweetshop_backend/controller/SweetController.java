@@ -13,6 +13,7 @@ import com.sweetshop.sweetshop_backend.util.JwtUtil;
 
 @RestController
 @RequestMapping("/api/sweets")
+@CrossOrigin(origins = "http://localhost:4200")
 public class SweetController {
 
     private final SweetService sweetService;
