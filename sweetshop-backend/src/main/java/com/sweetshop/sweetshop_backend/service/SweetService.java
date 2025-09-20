@@ -5,6 +5,7 @@ import com.sweetshop.sweetshop_backend.model.Sweet;
 import com.sweetshop.sweetshop_backend.repository.SweetRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class SweetService {
@@ -15,6 +16,7 @@ public class SweetService {
         this.sweetRepository = sweetRepository;
     }
 
+    // Existing methods
     public Sweet createSweet(Sweet sweet) {
         return sweetRepository.save(sweet);
     }
@@ -23,7 +25,6 @@ public class SweetService {
         return sweetRepository.findAll();
     }
 
-    // New search methods
     public List<Sweet> searchSweetsByName(String name) {
         return sweetRepository.findByNameContainingIgnoreCase(name);
     }
@@ -38,5 +39,17 @@ public class SweetService {
 
     public List<Sweet> searchSweets(String name, String category, Double minPrice, Double maxPrice) {
         return sweetRepository.findByMultipleCriteria(name, category, minPrice, maxPrice);
+    }
+
+    public Sweet updateSweet(String id, Sweet sweet) {
+        if (sweetRepository.existsById(id)) {
+            sweet.setId(id);
+            return sweetRepository.save(sweet);
+        }
+        return null;
+    }
+
+    public Optional<Sweet> getSweetById(String id) {
+        return sweetRepository.findById(id);
     }
 }
