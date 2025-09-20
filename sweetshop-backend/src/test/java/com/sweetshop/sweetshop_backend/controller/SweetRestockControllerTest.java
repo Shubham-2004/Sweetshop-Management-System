@@ -64,4 +64,83 @@ public class SweetRestockControllerTest {
                 .andExpect(jsonPath("$.sweetId").value("123"))
                 .andExpect(jsonPath("$.restockedQuantity").value(50));
     }
+
+    @Test
+    @WithMockUser
+    void testRestockSweetNoToken() throws Exception {
+        Map<String, Object> request = new HashMap<>();
+        request.put("quantity", 50);
+
+        mockMvc.perform(post("/api/sweets/123/restock")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andDo(print())
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.success").value(false));
+    }
+
+    @Test
+    @WithMockUser
+    void testRestockSweetNonAdmin() throws Exception {
+        String token = "user-token";
+        when(jwtUtil.extractUsername(token)).thenReturn("user");
+        when(jwtUtil.extractRole(token)).thenReturn("USER");
+        when(jwtUtil.validateToken(token, "user")).thenReturn(true);
+
+        Map<String, Object> request = new HashMap<>();
+        request.put("quantity", 50);
+
+        mockMvc.perform(post("/api/sweets/123/restock")
+                .header("Authorization", "Bearer " + token)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andDo(print())
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.success").value(false));
+    }
+
+    @Test
+    @WithMockUser
+    void testRestockSweetInvalidQuantity() throws Exception {
+        String token = "admin-token";
+        when(jwtUtil.extractUsername(token)).thenReturn("kashyap");
+        when(jwtUtil.extractRole(token)).thenReturn("ADMIN");
+        when(jwtUtil.validateToken(token, "kashyap")).thenReturn(true);
+
+        Map<String, Object> request = new HashMap<>();
+        request.put("quantity", -10);
+
+        mockMvc.perform(post("/api/sweets/123/restock")
+                .header("Authorization", "Bearer " + token)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.success").value(false));
+    }
+
+    @Test
+    @WithMockUser
+    void testRestockSweetNotFound() throws Exception {
+        String token = "admin-token";
+        when(jwtUtil.extractUsername(token)).thenReturn("kashyap");
+        when(jwtUtil.extractRole(token)).thenReturn("ADMIN");
+        when(jwtUtil.validateToken(token, "kashyap")).thenReturn(true);
+        when(sweetService.restockSweet("999", 50)).thenReturn(false);
+
+        Map<String, Object> request = new HashMap<>();
+        request.put("quantity", 50);
+
+        mockMvc.perform(post("/api/sweets/999/restock")
+                .header("Authorization", "Bearer " + token)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.success").value(false));
+    }
 }
