@@ -38,15 +38,13 @@ public class SweetUpdateTestControllerTest {
     @Test
     @WithMockUser
     void testUpdateSweetSuccess() throws Exception {
-        // Arrange
+    
         Sweet updatedSweet = new Sweet("Updated Chocolate Bar", "Candy", 3.00, 150);
         updatedSweet.setId("123");
 
         when(sweetService.updateSweet(eq("123"), any(Sweet.class))).thenReturn(updatedSweet);
 
         Sweet requestSweet = new Sweet("Updated Chocolate Bar", "Candy", 3.00, 150);
-
-        // Act & Assert
         mockMvc.perform(put("/api/sweets/123")
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -64,18 +62,54 @@ public class SweetUpdateTestControllerTest {
     @Test
     @WithMockUser
     void testUpdateSweetNotFound() throws Exception {
-        // Arrange
         Sweet requestSweet = new Sweet("Non-existent Sweet", "Test", 1.00, 10);
-        
         when(sweetService.updateSweet(eq("999"), any(Sweet.class))).thenReturn(null);
-
-        // Act & Assert
         mockMvc.perform(put("/api/sweets/999")
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(requestSweet)))
                 .andDo(print())
                 .andExpect(status().isNotFound());
+    }
+
+       @Test
+    @WithMockUser
+    void testUpdateSweetPartialUpdate() throws Exception {
+       
+        Sweet existingSweet = new Sweet("Chocolate Bar", "Candy", 2.50, 100);
+        existingSweet.setId("456");
+        
+        Sweet updatedSweet = new Sweet("Chocolate Bar", "Candy", 4.99, 75);
+        updatedSweet.setId("456");
+
+        when(sweetService.updateSweet(eq("456"), any(Sweet.class))).thenReturn(updatedSweet);
+
+        Sweet requestSweet = new Sweet("Chocolate Bar", "Candy", 4.99, 75);
+
+        // Act & Assert
+        mockMvc.perform(put("/api/sweets/456")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestSweet)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value("456"))
+                .andExpect(jsonPath("$.name").value("Chocolate Bar"))
+                .andExpect(jsonPath("$.price").value(4.99))
+                .andExpect(jsonPath("$.quantity").value(75));
+    }
+
+    @Test
+    @WithMockUser
+    void testUpdateSweetInvalidData() throws Exception {
+        String invalidJson = "{\"name\":\"\",\"price\":-1.0}";
+
+        mockMvc.perform(put("/api/sweets/123")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(invalidJson))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
     }
 
 
