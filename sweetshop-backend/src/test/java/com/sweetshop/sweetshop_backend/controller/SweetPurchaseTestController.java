@@ -10,8 +10,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.security.test.context.support.WithMockUser;
 
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -19,6 +17,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 @WebMvcTest(SweetController.class)
@@ -41,40 +41,40 @@ public class SweetPurchaseTestController {
         
         when(sweetService.purchaseSweet(sweetId, quantity)).thenReturn(true);
 
-        String requestBody = objectMapper.writeValueAsString(new PurchaseRequest(sweetId, quantity));
+        Map<String, Object> request = new HashMap<>();
+        request.put("quantity", quantity);
 
-        mockMvc.perform(post("/api/sweets/purchase")
+        mockMvc.perform(post("/api/sweets/{id}/purchase", sweetId)
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(requestBody))
+                .content(objectMapper.writeValueAsString(request)))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Purchase successful"));
+                .andExpect(jsonPath("$.message").value("Purchase successful"))
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.sweetId").value("123"))
+                .andExpect(jsonPath("$.quantity").value(5));
     }
 
-    static class PurchaseRequest {
-        private String sweetId;
-        private int quantity;
+    @Test
+    @WithMockUser
+    void testPurchaseSweetFailed() throws Exception {
+        String sweetId = "999";
+        int quantity = 5;
+        
+        when(sweetService.purchaseSweet(sweetId, quantity)).thenReturn(false);
 
-        public PurchaseRequest(String sweetId, int quantity) {
-            this.sweetId = sweetId;
-            this.quantity = quantity;
-        }
+        Map<String, Object> request = new HashMap<>();
+        request.put("quantity", quantity);
 
-        public String getSweetId() {
-            return sweetId;
-        }
-
-        public void setSweetId(String sweetId) {
-            this.sweetId = sweetId;
-        }
-
-        public int getQuantity() {
-            return quantity;
-        }
-
-        public void setQuantity(int quantity) {
-            this.quantity = quantity;
-        }
+        mockMvc.perform(post("/api/sweets/{id}/purchase", sweetId)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Purchase failed - Sweet not found or insufficient stock"))
+                .andExpect(jsonPath("$.success").value(false));
     }
+
 }
