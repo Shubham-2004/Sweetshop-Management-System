@@ -19,28 +19,54 @@ public class AuthService {
 
     public String loginUser(String username, String password) {
         try {
+            System.out.println("=== LOGIN DEBUG ===");
+            System.out.println("Input username: '" + username + "'");
+            System.out.println("Input password: '" + password + "'");
+            
             if (username == null || password == null) {
+                System.out.println("Username or password is null");
                 return null;
             }
             
             Optional<User> userOptional = userRepository.findByUsername(username);
+            System.out.println("User found in DB: " + userOptional.isPresent());
             
             if (userOptional.isPresent()) {
                 User user = userOptional.get();
+                System.out.println("DB username: '" + user.getUsername() + "'");
+                System.out.println("DB password: '" + user.getPassword() + "'");
+                System.out.println("DB role: '" + user.getRole() + "'");
+                System.out.println("Password match: " + password.equals(user.getPassword()));
+                
                 if (password.equals(user.getPassword())) {
-                    return jwtUtil.generateToken(username);
+                    // Include role in token generation
+                    String token = jwtUtil.generateTokenWithRole(username, user.getRole());
+                    System.out.println("Generated token: " + token);
+                    return token;
                 }
+            } else {
+                System.out.println("All users in database:");
+                userRepository.findAll().forEach(u -> 
+                    System.out.println("- Username: '" + u.getUsername() + "', Role: '" + u.getRole() + "'")
+                );
             }
             
             return null;
         } catch (Exception e) {
+            System.out.println("Error in loginUser: " + e.getMessage());
+            e.printStackTrace();
             return null;
         }
     }
 
     public String registerUser(String username, String password) {
         try {
+            System.out.println("=== SIGNUP DEBUG ===");
+            System.out.println("Signup username: '" + username + "'");
+            System.out.println("Signup password: '" + password + "'");
+            
             if (userRepository.existsByUsername(username)) {
+                System.out.println("User already exists");
                 return "Username already exists";
             }
             
@@ -54,12 +80,19 @@ public class AuthService {
             
             User newUser = new User();
             newUser.setUsername(username.trim());
-            newUser.setPassword(password); // Store password as plain text
+            newUser.setPassword(password);
+            newUser.setRole("USER"); // Default role for new registrations
             
-            userRepository.save(newUser);
+            User savedUser = userRepository.save(newUser);
+            System.out.println("User saved with ID: " + savedUser.getId());
+            System.out.println("Saved username: '" + savedUser.getUsername() + "'");
+            System.out.println("Saved role: '" + savedUser.getRole() + "'");
+            
             return "User registered successfully";
             
         } catch (Exception e) {
+            System.out.println("Error in registerUser: " + e.getMessage());
+            e.printStackTrace();
             return "Registration failed";
         }
     }
