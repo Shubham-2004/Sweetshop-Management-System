@@ -3,28 +3,37 @@ package com.sweetshop.sweetshop_backend.model;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
-import org.springframework.data.mongodb.core.index.Indexed;
 
-@Document(collection = "auth")  // This creates the "auth" table/collection
+@Document(collection = "users")
 public class User {
     
     @Id
-    private String id;  // MongoDB automatically generates ObjectId for this field
+    private String id;
     
     @Field("username")
-    @Indexed(unique = true)  // Ensures username is unique
     private String username;
     
     @Field("password")
     private String password;
+    
+    @Field("role")
+    private String role; 
+    
     public User() {}
     
+
     public User(String username, String password) {
         this.username = username;
         this.password = password;
+        this.role = "USER";
+    }
+
+    public User(String username, String password, String role) {
+        this.username = username;
+        this.password = password;
+        this.role = role;
     }
     
-    // Getters and Setters
     public String getId() {
         return id;
     }
@@ -49,12 +58,21 @@ public class User {
         this.password = password;
     }
     
+    public String getRole() {
+        return role;
+    }
+    
+    public void setRole(String role) {
+        this.role = role;
+    }
+    
     @Override
     public String toString() {
         return "User{" +
                 "id='" + id + '\'' +
                 ", username='" + username + '\'' +
                 ", password='[PROTECTED]'" +
+                ", role='" + role + '\'' +
                 '}';
     }
 }

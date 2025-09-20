@@ -52,4 +52,18 @@ public class SweetService {
     public Optional<Sweet> getSweetById(String id) {
         return sweetRepository.findById(id);
     }
+
+    public boolean deleteSweet(String id) {
+        try {
+            if (sweetRepository.existsById(id)) {
+                sweetRepository.deleteById(id);
+                return true;
+            } else {
+                return false;
+            }
+        } catch (Exception e) {
+            System.err.println("Error deleting sweet with ID " + id + ": " + e.getMessage());
+            return false;
+        }
+    }
 }
