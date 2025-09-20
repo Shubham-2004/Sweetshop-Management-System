@@ -99,4 +99,33 @@ public class SweetService {
             return false;
         }
     }
+    
+public boolean restockSweet(String sweetId, int quantity) {
+    try {
+      
+        if (quantity <= 0) {
+            System.out.println("Invalid restock quantity: " + quantity);
+            return false;
+        }
+        
+        Optional<Sweet> sweetOptional = sweetRepository.findById(sweetId);
+        
+        if (sweetOptional.isEmpty()) {
+            System.out.println("Sweet not found with ID: " + sweetId);
+            return false;
+        }
+        
+        Sweet sweet = sweetOptional.get();
+        int newQuantity = sweet.getQuantity() + quantity;
+        sweet.setQuantity(newQuantity);
+        sweetRepository.save(sweet);
+        
+        return true;
+        
+    } catch (Exception e) {
+        System.err.println("Error during restock: " + e.getMessage());
+        e.printStackTrace();
+        return false;
+    }
+}
 }
