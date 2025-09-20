@@ -1,24 +1,26 @@
 package com.sweetshop.sweetshop_backend.controller;
 
 import java.util.List;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.sweetshop.sweetshop_backend.model.Sweet;
 import com.sweetshop.sweetshop_backend.service.SweetService;
+import com.sweetshop.sweetshop_backend.util.JwtUtil;
 
 @RestController
 @RequestMapping("/api/sweets")
 public class SweetController {
 
     private final SweetService sweetService;
+    private final JwtUtil jwtUtil;
 
-    public SweetController(SweetService sweetService) {
+    public SweetController(SweetService sweetService, JwtUtil jwtUtil) {
         this.sweetService = sweetService;
+        this.jwtUtil = jwtUtil;
     }
 
-    // Existing endpoints
+    // Existing endpoints...
     @PostMapping(value = {"", "/"})
     public ResponseEntity<Sweet> createSweet(@RequestBody Sweet sweet) {
         try {
@@ -76,7 +78,6 @@ public class SweetController {
     @PutMapping("/{id}")
     public ResponseEntity<Sweet> updateSweet(@PathVariable String id, @RequestBody Sweet sweet) {
         try {
-            // Basic validation
             if (sweet.getName() == null || sweet.getName().trim().isEmpty()) {
                 return ResponseEntity.badRequest().build();
             }
@@ -96,6 +97,42 @@ public class SweetController {
             }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteSweet(
+            @PathVariable String id,
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
+        
+        try {
+        
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+            String token = authHeader.substring(7);
+        
+            String username = jwtUtil.extractUsername(token);
+            String role = jwtUtil.extractRole(token);
+            
+            if (!jwtUtil.validateToken(token, username)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+            if (!"ADMIN".equals(role)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+            boolean deleted = sweetService.deleteSweet(id);
+            
+            if (deleted) {
+                return ResponseEntity.noContent().build(); 
+            } else {
+                return ResponseEntity.notFound().build(); 
+            }
+
+        } catch (Exception e) {
+            System.err.println("Error in deleteSweet endpoint: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
 }
