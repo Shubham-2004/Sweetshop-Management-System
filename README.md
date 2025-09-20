@@ -251,7 +251,7 @@ cd sweetshop-backend
 
 # Run with coverage report
 ./mvnw test jacoco:report
-```c
+```
 
 ## 🤖 My AI Usage
 
