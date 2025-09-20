@@ -2,19 +2,6 @@
 
 A comprehensive full-stack web application for managing a sweet shop's inventory, sales, and user interactions. Built with Spring Boot backend and Angular frontend.
 
-## 📋 Table of Contents
-- [Project Overview](#project-overview)
-- [Features](#features)
-- [Technology Stack](#technology-stack)
-- [Prerequisites](#prerequisites)
-- [Installation & Setup](#installation--setup)
-- [Running the Application](#running-the-application)
-- [API Documentation](#api-documentation)
-- [Screenshots](#screenshots)
-- [Testing](#testing)
-- [My AI Usage](#my-ai-usage)
-- [License](#license)
-
 ## 🎯 Project Overview
 
 The Sweet Shop Management System is a modern web application designed to streamline the operations of a confectionery business. It provides a user-friendly interface for customers to browse and purchase sweets, while offering comprehensive administrative tools for inventory management.
@@ -55,7 +42,7 @@ The Sweet Shop Management System is a modern web application designed to streaml
 - **Spring Boot 3.x**: Application framework
 - **Spring Security**: Authentication and authorization
 - **Spring Data JPA**: Data persistence layer
-- **H2 Database**: In-memory database for development
+- **MongoDB Database**: In-memory database for development
 - **Maven**: Dependency management
 - **JWT**: JSON Web Tokens for authentication
 
@@ -267,8 +254,6 @@ cd sweetshop-backend
 ```c
 
 ## 🤖 My AI Usage
-
-This project was developed with significant assistance from AI tools, particularly GitHub Copilot and Gemini-Pro. Here's a detailed breakdown of AI usage throughout the development process:
 
 ### AI-Assisted Development Areas:
 
