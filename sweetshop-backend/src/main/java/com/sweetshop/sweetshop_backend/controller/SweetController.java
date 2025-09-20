@@ -18,7 +18,8 @@ public class SweetController {
         this.sweetService = sweetService;
     }
 
-    @PostMapping
+    // Existing endpoints
+    @PostMapping(value = {"", "/"})
     public ResponseEntity<Sweet> createSweet(@RequestBody Sweet sweet) {
         try {
             Sweet createdSweet = sweetService.createSweet(sweet);
@@ -28,7 +29,7 @@ public class SweetController {
         }
     }
 
-    @GetMapping
+    @GetMapping(value = {"", "/"})
     public ResponseEntity<List<Sweet>> getAllSweets() {
         try {
             List<Sweet> sweets = sweetService.getAllSweets();
@@ -37,7 +38,6 @@ public class SweetController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
-
 
     @GetMapping("/search")
     public ResponseEntity<List<Sweet>> searchSweets(
@@ -68,6 +68,32 @@ public class SweetController {
 
             return ResponseEntity.ok(results);
 
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Sweet> updateSweet(@PathVariable String id, @RequestBody Sweet sweet) {
+        try {
+            // Basic validation
+            if (sweet.getName() == null || sweet.getName().trim().isEmpty()) {
+                return ResponseEntity.badRequest().build();
+            }
+            if (sweet.getPrice() < 0) {
+                return ResponseEntity.badRequest().build();
+            }
+            if (sweet.getQuantity() < 0) {
+                return ResponseEntity.badRequest().build();
+            }
+
+            Sweet updatedSweet = sweetService.updateSweet(id, sweet);
+            
+            if (updatedSweet != null) {
+                return ResponseEntity.ok(updatedSweet);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
