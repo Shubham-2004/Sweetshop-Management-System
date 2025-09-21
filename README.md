@@ -234,10 +234,6 @@ Authorization: Bearer <jwt-token>
 ![Edit Sweet Form](screenshots/edit-sweet.png)
 *Comprehensive edit form for updating sweet information*
 
-### 🧪 Testing Cases
-![Test case report](screenshots/testcase.png)
-*Comprehensive edit form for updating sweet information*
-
 ## 🧪 Testing
 
 ### Backend Tests
